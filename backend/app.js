@@ -14,6 +14,16 @@ const PORT = process.env.Port;
 
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methords", "GET,POST,PATCH,DELETE");
+  next();
+});
+
 app.use("/api/places", placesRoutes);
 
 app.use("/api/users", usersRoutes);
@@ -31,9 +41,7 @@ app.use((err, req, res, next) => {
   res.json({ message: err.message || "An Unknown Error" });
 });
 mongoose
-  .connect(
-    `mongodb+srv://YashKumar:YashKumar@cluster0.mihgd.mongodb.net/Places?retryWrites=true&w=majority`
-  )
+  .connect(process.env.MongoURL)
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Server Running on Port ${PORT}`);
