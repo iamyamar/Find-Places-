@@ -1,72 +1,72 @@
-import React, { useContext } from "react";
-import "./PlaceForm.css";
-import Input from "../../shared/components/FormElements/Input";
+import React, { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import Input from '../../shared/components/FormElements/Input';
+import Button from '../../shared/components/FormElements/Button';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import {
-  VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
-} from "../../shared/util/validators";
-import Button from "../../shared/components/FormElements/Button";
-import { useForm } from "../../shared/hooks/formhook";
-import { useHttpClient } from "../../shared/hooks/http-hook";
-import { AuthContext } from "../../shared/context/auth-context";
-import ErrorModal from "../../shared/components/UIElement/ErrorModal";
-import { useHistory } from "react-router-dom";
+  VALIDATOR_MINLENGTH
+} from '../../shared/util/validators';
+import { useForm } from '../../shared/hooks/form-hook';
+import { useHttpClient } from '../../shared/hooks/http-hook';
+import { AuthContext } from '../../shared/context/auth-context';
+import './PlaceForm.css';
 
 const NewPlace = () => {
   const auth = useContext(AuthContext);
-  const { isloading, error, sendRequest, clearError } = useHttpClient();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler] = useForm(
     {
       title: {
-        value: "",
-        isValid: false,
+        value: '',
+        isValid: false
       },
       description: {
-        value: "",
-        isValid: false,
+        value: '',
+        isValid: false
       },
       address: {
-        value: "",
-        isValid: false,
-      },
+        value: '',
+        isValid: false
+      }
     },
     false
   );
 
   const history = useHistory();
 
-  const placeSubmitHandler = async (e) => {
-    e.preventDefault();
+  const placeSubmitHandler = async event => {
+    event.preventDefault();
     try {
       await sendRequest(
-        "http://localhost:5000/api/places",
-        "POST",
+        'http://localhost:5000/api/places',
+        'POST',
         JSON.stringify({
           title: formState.inputs.title.value,
           description: formState.inputs.description.value,
           address: formState.inputs.address.value,
-          creator: auth.userId,
+          creator: auth.userId
         }),
-        {
-          "Content-Type": "application/json",
-        }
+        { 'Content-Type': 'application/json' }
       );
-      history.push("/");
+      history.push('/');
     } catch (err) {}
   };
 
   return (
-    <>
+    <React.Fragment>
       <ErrorModal error={error} onClear={clearError} />
       <form className="place-form" onSubmit={placeSubmitHandler}>
-        {isloading && <LoadingSpinner asOverlay />}
+        {isLoading && <LoadingSpinner asOverlay />}
         <Input
           id="title"
           element="input"
           type="text"
           label="Title"
           validators={[VALIDATOR_REQUIRE()]}
-          errorText="Please Enter a Valid Title"
+          errorText="Please enter a valid title."
           onInput={inputHandler}
         />
         <Input
@@ -74,7 +74,7 @@ const NewPlace = () => {
           element="textarea"
           label="Description"
           validators={[VALIDATOR_MINLENGTH(5)]}
-          errorText="Please Enter a Valid Discription (min 5 charachter)"
+          errorText="Please enter a valid description (at least 5 characters)."
           onInput={inputHandler}
         />
         <Input
@@ -82,15 +82,14 @@ const NewPlace = () => {
           element="input"
           label="Address"
           validators={[VALIDATOR_REQUIRE()]}
-          errorText="Please Enter a Valid Addres"
+          errorText="Please enter a valid address."
           onInput={inputHandler}
         />
-
-        <Button type="sumit" disabled={!formState.isValid}>
+        <Button type="submit" disabled={!formState.isValid}>
           ADD PLACE
         </Button>
       </form>
-    </>
+    </React.Fragment>
   );
 };
 

@@ -1,9 +1,8 @@
 const { validationResult } = require("express-validator");
 
-const HttpError = require("../middlewere/http-error");
+const HttpError = require("../models/http-error");
 const User = require("../models/user");
 
-//! Get all User
 exports.getUsers = async (req, res, next) => {
   let users;
   try {
@@ -18,7 +17,6 @@ exports.getUsers = async (req, res, next) => {
   res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
-//! Signup
 exports.signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -58,14 +56,16 @@ exports.signup = async (req, res, next) => {
   try {
     await createdUser.save();
   } catch (err) {
-    const error = new HttpError("Signing up failed, please try again.", 500);
+    const error = new HttpError(
+      "Signing up failed, please try again later.",
+      500
+    );
     return next(error);
   }
 
   res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
-//! Login
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -75,7 +75,7 @@ exports.login = async (req, res, next) => {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
     const error = new HttpError(
-      "Logging in failed, please try again later.",
+      "Loggin in failed, please try again later.",
       500
     );
     return next(error);
