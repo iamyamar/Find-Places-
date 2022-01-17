@@ -1,4 +1,6 @@
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -14,6 +16,8 @@ const app = express();
 // const mongouri = process.env.MONGO_URI;
 
 app.use(bodyParser.json());
+
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -35,6 +39,12 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
+
   if (res.headerSent) {
     return next(error);
   }
@@ -44,7 +54,7 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    `mongodb+srv://YashKumar:YashKumar@cluster0.mihgd.mongodb.net/New?retryWrites=true&w=majority`,
+    `mongodb+srv://YashKumar:YashKumar@cluster0.mihgd.mongodb.net/Pinitup?retryWrites=true&w=majority`,
     {
       useUnifiedTopology: true,
       useNewUrlParser: true,
